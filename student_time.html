@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>學生回家時間查詢</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    select { padding: 8px; font-size: 16px; margin: 5px; }
+    table { margin: 20px auto; border-collapse: collapse; width: 60%; }
+    th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+    th { background-color: #f2f2f2; }
+    #result { margin-top: 20px; font-size: 18px; font-weight: bold; color: #2c3e50; }
+  </style>
+</head>
+<body>
+  <h2>學生回家時間查詢系統</h2>
+  
+  <!-- 年級選單 -->
+  <select id="gradeSelect" onchange="updateStudents()">
+    <option value="">-- 請選擇年級 --</option>
+    <option value="一年級">一年級</option>
+    <option value="二年級">二年級</option>
+  </select>
+  
+  <!-- 學生選單 -->
+  <select id="studentSelect" onchange="showSchedule()">
+    <option value="">-- 請先選擇年級 --</option>
+  </select>
+  
+  <div id="result"></div>
+
+  <script>
+    // 學生資料庫：年級 → 學生 → 每天回家時間
+    const studentData = {
+      "一年級": {
+	"毋舒漩": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+        "王品程": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"吳孟宸": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"吳秉宸": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"宋明瑄": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"李芯宇": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+        "李祤棠": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"周雋熙": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"林宸逸": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"柯允喆": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"徐梓寧": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"張品萱": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"張筠昕": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"陳宜君": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"陳品璇": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"陳彥呈": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"陳約融": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"陳鉑潾": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"黃塏皓": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"楊千侑": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"賈卉羽": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"潘怩霓": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"盧品學": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"謝雨昕": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+	"蘇詩晴": { "週一": "18:30", "週二": "18:30", "週三": "18:30", "週四": "18:30", "週五": "18:30" },
+      },
+      "二年級": {
+        "林謝瑋芯": { "週一": "06:30", "週二": "06:30", "週三": "06:30", "週四": "06:30", "週五": "06:30" },
+        "許亇玥": { "週一": "07:30", "週二": "07:30", "週三": "07:30", "週四": "-", "週五": "-" },
+        "王佳鈺": { "週一": "06:30", "週二": "06:30", "週三": "06:30", "週四": "06:30", "週五": "06:30" },
+        "楊紫葶": { "週一": "06:30", "週二": "06:30", "週三": "06:30", "週四": "-", "週五": "-" }
+      }
+    };
+
+    // 更新學生選單
+    function updateStudents() {
+      const grade = document.getElementById("gradeSelect").value;
+      const studentSelect = document.getElementById("studentSelect");
+      studentSelect.innerHTML = "";
+
+      if (grade && studentData[grade]) {
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "-- 請選擇學生 --";
+        studentSelect.appendChild(defaultOption);
+
+        for (const name in studentData[grade]) {
+          const option = document.createElement("option");
+          option.value = name;
+          option.textContent = name;
+          studentSelect.appendChild(option);
+        }
+      } else {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "-- 請先選擇年級 --";
+        studentSelect.appendChild(option);
+      }
+
+      document.getElementById("result").innerHTML = "";
+    }
+
+    // 顯示完整週表
+    function showSchedule() {
+      const grade = document.getElementById("gradeSelect").value;
+      const name = document.getElementById("studentSelect").value;
+      const resultDiv = document.getElementById("result");
+
+      if (grade && name) {
+        const times = studentData[grade][name];
+        let tableHTML = `<h3>${grade} ${name} 的回家時間表</h3>`;
+        tableHTML += "<table><tr><th>星期</th><th>回家時間</th></tr>";
+        for (const day in times) {
+          tableHTML += `<tr><td>${day}</td><td>${times[day]}</td></tr>`;
+        }
+        tableHTML += "</table>";
+        resultDiv.innerHTML = tableHTML;
+      } else {
+        resultDiv.innerHTML = "";
+      }
+    }
+  </script>
+</body>
+</html>
