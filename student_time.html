@@ -15,12 +15,15 @@
 <body>
   <h2>學生回家時間查詢系統</h2>
   
-  <!-- 年級選單 -->
-  <select id="gradeSelect" onchange="updateStudents()">
-    <option value="">-- 請選擇年級 --</option>
-    <option value="一年級">一年級</option>
-    <option value="二年級">二年級</option>
-  </select>
+<select id="gradeSelect" onchange="updateStudents()">
+  <option value="">-- 請選擇年級 --</option>
+  <option value="一年級">一年級</option>
+  <option value="二年級">二年級</option>
+  <option value="三年級">三年級</option>
+  <option value="四年級">四年級</option>
+  <option value="五年級">五年級</option>
+  <option value="六年級">六年級</option>
+</select>
   
   <!-- 學生選單 -->
   <select id="studentSelect" onchange="showSchedule()">
@@ -236,5 +239,6 @@
 </body>
 
 </html>
+
 
 
